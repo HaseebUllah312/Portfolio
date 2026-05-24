@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vulnerable App</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .alert { padding: 10px; background-color: #f44336; color: white; margin-bottom: 15px; }
+        .success { padding: 10px; background-color: #4CAF50; color: white; margin-bottom: 15px; }
+        .profile { padding: 15px; background-color: #e9e9e9; border-left: 5px solid #2196F3; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 8px; margin: 5px 0 15px 0; box-sizing: border-box; }
+        input[type="submit"] { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Login (Test SQL Injection)</h2>
+    
+    <% if (message) { %>
+        <div class="<%= message.includes('Invalid') ? 'alert' : 'success' %>">
+            <%= message %>
+        </div>
+    <% } %>
+
+    <form action="/login" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
+        <input type="submit" value="Login">
+    </form>
+
+    <hr>
+
+    <h2>Profile (Test XSS)</h2>
+    <form action="/profile" method="GET">
+        <label for="bio">Enter your bio to update profile:</label>
+        <input type="text" id="bio" name="bio" placeholder="e.g. <script>alert('XSS')</script>">
+        <input type="submit" value="Update Bio">
+    </form>
+
+    <% if (profileData) { %>
+        <h3>Your Profile Bio:</h3>
+        <div class="profile">
+            <!-- VULNERABILITY: <%- %> outputs raw unescaped HTML in EJS -->
+            <%- profileData %>
+        </div>
+    <% } %>
+
+</div>
+
+</body>
+</html>
